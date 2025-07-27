@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreatePage</title>
+<link
+  rel="icon"
+  href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hcnJvdy1yaWdodC1pY29uIGx1Y2lkZS1hcnJvdy1yaWdodCI+PHBhdGggZD0iTTUgMTJoMTQiLz48cGF0aCBkPSJtMTIgNSA3IDctNyA3Ii8+PC9zdmc+"
+  media="(prefers-color-scheme: light)"
+/>
+
+<link
+  rel="icon"
+  href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hcnJvdy1yaWdodC1pY29uIGx1Y2lkZS1hcnJvdy1yaWdodCI+PHBhdGggZD0iTTUgMTJoMTQiLz48cGF0aCBkPSJtMTIgNSA3IDctNyA3Ii8+PC9zdmc+"
+  media="(prefers-color-scheme: dark)"
+/>
+<meta name="description" content="Create a page free">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.1/ace.js" integrity="sha512-kmA5vhcxOkZI0ReiKJMGNb8/KKbgbExIlnt6aXuPtl86AgHBEi6OHHOz2wsTazBDGZKxe7fmiE+pIuZJQks4+A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/css" media="screen">
+
+        @font-face {
+            font-family: 'Azeret Mono';
+            src: url('azeret.ttf') format('truetype');
+        }
+    </style>
+<style>
+/ Thanh trượt (track) /
+::-webkit-scrollbar-track {
+background: #333; / Màu nền tối /
+}
+
+/ Nút kéo (thumb) /
+::-webkit-scrollbar-thumb {
+background: #666; / Màu nút kéo tối hơn /
+border-radius: 10px; / Bo tròn cho đẹp /
+}
+
+/ Nút kéo khi hover /
+::-webkit-scrollbar-thumb:hover {
+background: #888; / Màu nút kéo khi hover sáng hơn một chút /
+}
+</style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-6 font-mono">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Tạo page free</h1>
+
+    <input id="titleInput" type="text" placeholder="Nhập tiêu đề..."
+      class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700 text-white"/>
+
+    <div id="editor" class="h-64 w-full rounded border border-gray-700 mb-4"></div>
+
+    <button onclick="createFriendPaste()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+      Tạo Page
+    </button>
+
+    <div id="result" class="mt-4 text-green-400"></div>
+    <div id="error" class="mt-2 text-red-400"></div>
+  </div>
+
+  <script>
+
+        function encodeBase64(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/html");
+    editor.setOptions({
+      fontFamily: 'Azeret Mono'
+    });
+
+    async function createFriendPaste() {
+      const title = document.getElementById("titleInput").value.trim();
+      const content = editor.getValue().trim();
+      const result = document.getElementById("result");
+      const error = document.getElementById("error");
+      result.textContent = '';
+      error.textContent = '';
+
+      if (!content) {
+        error.textContent = "⚠️ Bạn chưa nhập nội dung paste!";
+        return;
+      }
+
+	const contensa = encodeBase64(content)
+
+      const data = {
+        title: title || "Untitled Paste",
+        snippet: contensa,
+        language: "html"
+      };
+
+      const start = performance.now();
+      try {
+        const res = await fetch("https://www.friendpaste.com/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const end = performance.now();
+        const json = await res.json();
+
+        console.log("🔧 Server response:", json);
+        console.log(`⏱️ Thời gian gửi: ${(end - start).toFixed(2)}ms`);
+
+        if (json.ok) {
+          const rawUrl = `https://friendpaste.com/${json.id}/raw?rev=${json.rev}`;
+	  const base6link4 = encodeBase64(`${json.id}/raw?rev=${json.rev}`);
+	  const link = `https://soctrungkien.github.io/CreatePage/r.htm?` + base6link4;
+
+          result.innerHTML = `
+            📄 Link: <a href="${link}" target="_blank" class="underline text-green-400" style="word-break: break-all">${link}</a><br>
+            ⏱️ Mất ${(end - start).toFixed(2)}ms để upload.
+          `;
+        } else {
+          error.textContent = `❌ Không thành công: ${json.reason}`;
+        }
+      } catch (err) {	
+        console.error("🚨 Lỗi khi gửi:", err);
+        error.textContent = `🚫 Fetch lỗi: ${err.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

