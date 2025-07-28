@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
@@ -69,7 +68,7 @@ function deobfuscate(input) {
 
         let html;
         try {
-          html = deobfuscate(base64);
+          html = decodeURIComponent(deobfuscate(base64));
         } catch {
           throw new Error("❌ Dữ liệu không phải là hợp lệ");
         }
