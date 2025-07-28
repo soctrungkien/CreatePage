@@ -354,8 +354,10 @@ async function urlrawinload() {
     const pasteUrlFull = 'https://friendpaste.com/' + pasteIdRaw;
     const pasteUrl = pasteUrlFull.replace(/\/raw.*$/, '');
     console.log("URL friendpaste:", pasteUrl);
+
+        const thienlioi = await fetch(url);
+        if (!thienlioi.ok) throw new Error("buộc lỗi");
 	  
-      const thienlioi = fetch(pasteUrlFull);
       const domdom = decodeURIComponent(deobfuscate(thienlioi));  
 
 editor.setValue(domdom || "", -1);
