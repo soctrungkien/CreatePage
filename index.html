@@ -202,18 +202,35 @@
 
   <script>
 
+function deobfuscate(input) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let str = input.replace(/=+$/, "");
+  let output = [];
+
+  for (let bc = 0, bs = 0, buffer, i = 0; (buffer = str.charAt(i++));) {
+    const charIndex = chars.indexOf(buffer);
+    if (charIndex === -1) continue;
+
+    bs = (bs << 6) | charIndex;
+    bc += 6;
+    if (bc >= 8) {
+      bc -= 8;
+      output.push((bs >> bc) & 0xff);
+    }
+  }
+
+  return new TextDecoder().decode(new Uint8Array(output));
+}
+
 function doObfuscate(input) {
   if (!input || typeof input !== 'string') {
     console.log("No document HTML source code inserted to obfuscate!");
     return null;
   }
 
-  const encryptedText = encrypt(input);
-  const output = encryptedText;
-
-  return output
+  return encodeURIComponent(input);
 }
-
+	
 function encrypt(text) {
   return [...text].map(c => '%' + hexFromCharCode(c.charCodeAt(0))).join('');
 }
@@ -329,7 +346,7 @@ async function urlrawinload() {
     console.log("Query string:", query);
 
     // Giải mã base64 (nội dung paste id)
-    const pasteIdRaw = atob(query);
+    const pasteIdRaw = deobfuscate(query);
     console.log("Paste ID raw (base64 giải mã):", pasteIdRaw);
 
     // Tạo URL friendpaste, bỏ phần /raw? nếu có
@@ -347,15 +364,15 @@ async function urlrawinload() {
 
       const data = await res.json();
       console.log("Tiêu đề paste:", data.title);
+      const thienlioi = fetch(pasteUrlFull);
+      const domdom = decodeURIComponent(deobfuscate(thienlioi));
 
       // Cập nhật giao diện
       titleInput.value = data.title || "";
-      editor.setValue(data.snippet || "", -1);
+      editor.setValue(domdom || "", -1);
 
     } catch (err) {
       console.error("Lỗi khi lấy paste:", err.message);
-      titleInput.value = "";
-      editor.setValue("", -1);
     }
 
   } else {
@@ -373,8 +390,6 @@ async function urlrawinload() {
 
     } catch (err) {
       console.error("Lỗi khi lấy raw content:", err.message);
-      titleInput.value = "";
-      editor.setValue("", -1);
     }
   }
 }
