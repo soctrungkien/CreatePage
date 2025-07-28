@@ -340,6 +340,7 @@ async function urlrawinload() {
   if (url.includes("soctrungkien.github.io/CreatePage/r.htm?")) {
     // CreatePage
     console.log("Loại URL: CreatePage");
+    console.log("No x2 fetch");
 
     // Lấy phần query sau dấu ?
     const query = url.split("?")[1];
@@ -364,7 +365,7 @@ async function urlrawinload() {
 
       const data = await res.json();
       console.log("Tiêu đề paste:", data.title);
-      const thienlioi = fetch(pasteUrlFull);
+      const thienlioi = data.snippet;
       const domdom = decodeURIComponent(deobfuscate(thienlioi));
 
       // Cập nhật giao diện
