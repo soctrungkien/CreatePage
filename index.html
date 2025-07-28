@@ -355,7 +355,7 @@ async function urlrawinload() {
     const pasteUrl = pasteUrlFull.replace(/\/raw.*$/, '');
     console.log("URL friendpaste:", pasteUrl);
 
-        const thienlioi = await fetch(url);
+        const thienlioi = await fetch(pasteUrlFull);
         if (!thienlioi.ok) throw new Error("buộc lỗi");
 
 	const encodedaaa = await thienlioi.text();
