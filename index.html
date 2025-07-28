@@ -354,7 +354,13 @@ async function urlrawinload() {
     const pasteUrlFull = 'https://friendpaste.com/' + pasteIdRaw;
     const pasteUrl = pasteUrlFull.replace(/\/raw.*$/, '');
     console.log("URL friendpaste:", pasteUrl);
+	  
+      const thienlioi = fetch(pasteUrlFull);
+      const domdom = decodeURIComponent(deobfuscate(thienlioi));  
 
+editor.setValue(domdom || "", -1);
+
+	  
     try {
       const res = await fetch(pasteUrl, {
         method: "GET",
@@ -364,14 +370,10 @@ async function urlrawinload() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
-      console.log("Tiêu đề paste:", data.title);
-      const thienlioi = data.snippet;
-      const domdom = decodeURIComponent(deobfuscate(thienlioi));
-
+	    
       // Cập nhật giao diện
       titleInput.value = data.title || "";
-      editor.setValue(domdom || "", -1);
-
+	    
     } catch (err) {
       console.error("Lỗi khi lấy paste:", err.message);
     }
