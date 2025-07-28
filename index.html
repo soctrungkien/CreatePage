@@ -357,8 +357,11 @@ async function urlrawinload() {
 
         const thienlioi = await fetch(url);
         if (!thienlioi.ok) throw new Error("buộc lỗi");
+
+	const encodedaaa = await thienlioi.text();
+        const base64aaa = encodedaaa.trim();
 	  
-      const domdom = decodeURIComponent(deobfuscate(thienlioi));  
+      const domdom = decodeURIComponent(deobfuscate(base64aaa));  
 
 editor.setValue(domdom || "", -1);
 
