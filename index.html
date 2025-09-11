@@ -210,10 +210,17 @@
 
   function toggleAceEditor() {
     editorfull.classList.toggle("ace_editor");
+    editorfull.classList.toggle("w-screen");
+    editorfull.classList.toggle("h-screen");
   }
 
   btn.addEventListener("click", () => {
 	toggleAceEditor();
+if (editorfull.classList.contains("ace_editor")) {
+document.body.style.overflow = "auto";
+} else {
+document.body.style.overflow = "hidden";
+}
   });
 </script>
   <script>
