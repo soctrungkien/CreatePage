@@ -425,6 +425,11 @@ editor.setValue(domdom || "", -1);
   }
 }
 
+editor.getSession().setUseWrapMode(true);             // tự động xuống dòng
+editor.setShowFoldWidgets(false);                     // tắt biểu tượng fold
+editor.setOption("foldStyle", "manual");              // không tự động fold
+editor.session.setOption("maxTokenCount", 100000);    // tăng giới hạn token
   </script>
 </body>
 </html>
+
